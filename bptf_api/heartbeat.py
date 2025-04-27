@@ -3,7 +3,7 @@ import os
 
 class Heartbeat:
     def __init__(self):
-        self.token = os.getenv('token')
+        self.token = os.getenv('BP_TOKEN')
     def get_status(self):
         url = "https://backpack.tf/api/agent/status"
         params = {
@@ -37,7 +37,6 @@ class Heartbeat:
 
 if __name__ == "__main__":
     heartbeat = Heartbeat()
-    
     if heartbeat.get_status() == 'inactive':
         heartbeat.register_or_refresh(user_agent_name="Just say Alohaaaa")
 
