@@ -56,6 +56,21 @@ class Classifieds:
         return BatchRequest(self.token)
 
 
+    # def get_batch_operation_limit(self) -> int:
+    #     url = "https://backpack.tf/api/v2/classifieds/listings/batch"
+
+    #     params = {
+    #         "token": self.token
+    #     }
+
+    #     response = requests.get(url, params=params)
+    #     try:
+    #         response.raise_for_status()
+    #         return response.json()["opLimit"]
+    #     except requests.HTTPError as e:
+    #         logging.error(f"Error getting batch operation limit: {e}")
+    #         return 0
+
     @sleep_and_retry
     @limits(calls=STANDARD_CLASSIFIEDS_LIMIT, period=60)
     def update_listing(self, listing_id: str, update_model: UpdateListingV2):
@@ -70,7 +85,7 @@ class Classifieds:
         try:
             response.raise_for_status()
             return response.json() 
-
+            # return ListingV2(**response.json())
         except requests.HTTPError as e:
             logging.error(f"Error updating listing: {e} \nResponse: {response.json()}")
             return response.json()
@@ -94,6 +109,51 @@ class Classifieds:
             logging.error(f"Error deleting listing: {e} \nResponse: {response.json()}")
             return response.json()
 
+            
+    
+    """ It is much more convenient to get my listings from websocket database """
+    # def get_my_listings(self) -> list[ListingV2]:
+    #     all_listings = []
+        
+    #     first_page = self._get_my_listings_page(0)
+    #     all_listings.extend(first_page.results)
+        
+    #     current_skip = first_page.cursor.limit  # Start with limit as our skip value
+    #     total = first_page.cursor.total
+    #     limit = first_page.cursor.limit
+        
+    #     while current_skip < total:
+    #         next_page = self._get_my_listings_page(current_skip)
+    #         if not next_page.results:
+    #             break
+    #         all_listings.extend(next_page.results)
+    #         current_skip += limit
+            
+    #         # If next skip would exceed total, we're done
+    #         if current_skip + limit > total:
+    #             break
+        
+    #     return all_listings
+
+
+    # @sleep_and_retry
+    # @limits(calls=STANDARD_CLASSIFIEDS_LIMIT, period=60)
+    # def _get_my_listings_page(self, skip: int) -> ScrollableListing:
+    #     url = "https://backpack.tf/api/v2/classifieds/listings"
+
+    #     params = {
+    #         "token": self.token,
+    #         "skip": skip
+    #     }
+
+    #     response = requests.get(url, params=params)
+    #     try:
+    #         response.raise_for_status()
+    #         return ScrollableListing(**response.json())
+    #     except requests.HTTPError as e:
+    #         logging.error(f"Error getting my listings page: {e} \nResponse: {response.json()}")
+    #         return response.json()
+        
 
     @sleep_and_retry
     @limits(calls=STANDARD_CLASSIFIEDS_LIMIT, period=60)
@@ -119,22 +179,23 @@ class Classifieds:
 
 
 
+
+
+
+
 if __name__ == "__main__":
     c = Classifieds()
     
-    # snapshot = c.get_snapshot("The Liberty Launcher")
+    snapshot = c.get_snapshot("Burning Flames Team Captain")
     # print(snapshot)
 
-    from models.batch import Intent, Currencies, ItemV1
-    batch = c.prepare_batch()
-    listing = ListingV1(
-        intent=Intent.BUY,
-        details='test',
-        currencies=Currencies(metal=12.11),
-        item=ItemV1(item_name='Strange Hot Professional Killstreak Minigun', quality='Strange', particle_name="Hot", priceindex=701)
-        # item=ItemV1(item_name='Professional Killstreak Phlogistinator Kit', quality='Unique', craftable=0)
-        # item=ItemV1(item_name="Non-Craftable Conjurer's Cowl", quality='Unique', craftable=0)
-    )
-    print(listing.model_dump())
-    batch.add_listing_to_batch(listing)
-    batch.create_listings_batch()
+    # from models.batch import Intent, Currencies, ItemV1
+    # batch = c.prepare_batch()
+    # listing = ListingV1(
+    #     intent=Intent.BUY,
+    #     details='test',
+    #     currencies=Currencies(metal=18.11),
+    #     item=ItemV1(item_name='Strange Hot Professional Killstreak Minigun', quality='Strange', particle_name="Hot", priceindex=701)
+    # )
+    # batch.add_listing_to_batch(listing)
+    # batch.create_listings_batch()
