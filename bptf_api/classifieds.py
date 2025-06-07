@@ -3,7 +3,7 @@ import os
 from ratelimit import limits, sleep_and_retry
 import logging
 
-from models import ListingPatchRequest, SnapshotResponse, ListingResolvable, ListingCurrencies, ItemV2
+from .models import ListingPatchRequest, SnapshotResponse, ListingResolvable, ListingCurrencies, ItemV2
 
 logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
