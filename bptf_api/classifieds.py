@@ -3,45 +3,13 @@ import os
 from ratelimit import limits, sleep_and_retry
 import logging
 
-from models.batch import ListingV1
-from models.snapshot import SnapshotResponse
-from models.update_listing import UpdateListingV2
+from models import ListingPatchRequest, SnapshotResponse, ListingResolvable, ListingCurrencies, ItemV2
 
 logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 
 BATCH_OPERATION_LIMIT = 10          #per minute
 STANDARD_CLASSIFIEDS_LIMIT = 60     #per minute 
-
-
-class BatchRequest():
-    
-    def __init__(self, token):
-        self.token = token
-        self.batch_listings: list[dict] = []
-
-        
-    def add_listing_to_batch(self, listing: ListingV1) -> None:
-        self.batch_listings.append(listing.model_dump(exclude_none=True))
-
-    @sleep_and_retry
-    @limits(calls=BATCH_OPERATION_LIMIT, period=60)
-    def create_listings_batch(self) -> None:
-        url = "https://backpack.tf/api/classifieds/list/v1"
-        
-        payload = {
-            "token": self.token,
-            "listings": self.batch_listings
-        }
-
-        try:
-            response = requests.post(url, json=payload)
-            print(response.json())
-
-            self.batch_listings = []
-        except requests.HTTPError as e:
-            logging.error(f"Error creating batch listings: {e}")    
-
 
 
 class Classifieds:
@@ -52,13 +20,9 @@ class Classifieds:
             raise ValueError("No token found in environment variables")
             
 
-    def prepare_batch(self) -> BatchRequest:
-        return BatchRequest(self.token)
-
-
     @sleep_and_retry
     @limits(calls=STANDARD_CLASSIFIEDS_LIMIT, period=60)
-    def update_listing(self, listing_id: str, update_model: UpdateListingV2):
+    def update_listing(self, listing_id: str, update_model: ListingPatchRequest):
         url = f"https://backpack.tf/api/v2/classifieds/listings/{listing_id}"
 
         params = {
@@ -116,25 +80,70 @@ class Classifieds:
             logging.error(f"Error taking snapshot: {e} \nResponse: {response.json()}")
 
 
+class BatchClientV2:
+    def __init__(self):
+        self.token = os.getenv('BP_TOKEN')
+        if self.token is None or self.token == "":
+            raise ValueError("No token found in environment variables")
+        self.listings = []
+            
+    def _add_listing(self, listing: ListingResolvable) -> None:
+        """Add a listing to the batch and check if batch should be sent"""
+        self.listings.append(listing)
+        if len(self.listings) >= 100:
+            self.send_batch()
+    
+    def add_buy_listing(self, item: ItemV2, currencies: ListingCurrencies, details: str = None) -> None:
+        """Add a buy listing to the batch"""
+        listing = ListingResolvable(
+            item=item,
+            currencies=currencies,
+            offers=1,
+            buyout=1,
+            details=details
+        )
+        self._add_listing(listing)
+    
+    def add_sell_listing(self, item_id: int, currencies: ListingCurrencies, details: str = None) -> None:
+        """Add a sell listing to the batch"""
+        listing = ListingResolvable(
+            id=item_id,
+            offers=1,
+            buyout=1,
+            currencies=currencies,
+            details=details
+        )
+        self._add_listing(listing)
+    
+    @sleep_and_retry
+    @limits(calls=BATCH_OPERATION_LIMIT, period=60)
+    def send_batch(self):
+        if len(self.listings) == 0:
+            return
 
+        batch_to_send = self.listings.copy()
+        self.listings = []
+        
+        url = 'https://backpack.tf/api/v2/classifieds/listings/batch'
+        params = {"token": self.token}
+        
+        response = requests.post(
+            url, 
+            json=[listing.model_dump(exclude_none=True) for listing in batch_to_send], 
+            params=params
+        )
+        response.raise_for_status()
+        return response.json()
 
+               
 
 if __name__ == "__main__":
     c = Classifieds()
     
     # snapshot = c.get_snapshot("The Liberty Launcher")
     # print(snapshot)
-
-    from models.batch import Intent, Currencies, ItemV1
-    batch = c.prepare_batch()
-    listing = ListingV1(
-        intent=Intent.BUY,
-        details='test',
-        currencies=Currencies(metal=12.11),
-        item=ItemV1(item_name='Strange Hot Professional Killstreak Minigun', quality='Strange', particle_name="Hot", priceindex=701)
-        # item=ItemV1(item_name='Professional Killstreak Phlogistinator Kit', quality='Unique', craftable=0)
-        # item=ItemV1(item_name="Non-Craftable Conjurer's Cowl", quality='Unique', craftable=0)
-    )
-    print(listing.model_dump())
-    batch.add_listing_to_batch(listing)
-    batch.create_listings_batch()
+    
+    # Example of using BatchClientV2 synchronously
+    # client = BatchClientV2()
+    # # Add listings here...
+    # result = client.flush()
