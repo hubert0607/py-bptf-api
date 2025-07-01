@@ -6,11 +6,11 @@ class EntityV2(BaseModel):
     name: Optional[str] = None
     color: Optional[str] = None
 
-class targetItem(BaseModel):
+class TargetItem(BaseModel):
     itemName: str
 
 class Recipe(BaseModel):
-    targetItem: targetItem
+    targetItem: TargetItem
 
 class Spell(BaseModel):
     id: Optional[str] = None

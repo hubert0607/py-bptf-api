@@ -3,7 +3,7 @@ import os
 from ratelimit import limits, sleep_and_retry
 import logging
 
-from interfaces.classifieds import listingPatchRequest
+from interfaces.classifieds import ListingPatchRequest
 
 
 STANDARD_CLASSIFIEDS_LIMIT = 60     #per minute 
@@ -18,7 +18,7 @@ class Classifieds:
 
     @sleep_and_retry
     @limits(calls=STANDARD_CLASSIFIEDS_LIMIT, period=60)
-    def update_listing(self, listing_id: str, update_model: listingPatchRequest):
+    def update_listing(self, listing_id: str, update_model: ListingPatchRequest):
         url = f"https://backpack.tf/api/v2/classifieds/listings/{listing_id}"
 
         params = {
