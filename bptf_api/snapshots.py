@@ -2,7 +2,8 @@ import os
 import requests
 from ratelimit import limits, sleep_and_retry
 import logging
-from interfaces.snapshots import SnapshotResponse
+
+from .interfaces.snapshots import SnapshotResponse
 
 SNAPSHOT_OPERATION_LIMIT = 60     #per minute
 

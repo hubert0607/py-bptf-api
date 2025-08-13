@@ -3,7 +3,7 @@ import os
 from ratelimit import limits, sleep_and_retry
 import logging
 
-from interfaces.classifieds import ListingPatchRequest
+from .interfaces.classifieds import ListingPatchRequest
 
 
 STANDARD_CLASSIFIEDS_LIMIT = 60     #per minute 
