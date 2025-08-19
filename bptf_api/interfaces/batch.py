@@ -1,55 +1,53 @@
-from dataclasses import dataclass
 from typing import Optional, List
+from pydantic import BaseModel
 
-@dataclass
-class EntityV2:
+class EntityV2(BaseModel):
     id: int
     name: Optional[str] = None
     color: Optional[str] = None
 
-@dataclass
-class TargetItem:
+class TargetItem(BaseModel):
     itemName: str
 
-@dataclass
-class Recipe:
+class Recipe(BaseModel):
     targetItem: TargetItem
 
-@dataclass
-class Spell:
-    spellId: str
-    type: str
+class Spell(BaseModel):
     id: Optional[str] = None
+    spellId: str
     name: Optional[str] = None
+    type: str
 
-@dataclass
-class ItemV2:
+class ItemV2(BaseModel):
     baseName: str
-    tradable: bool
-    craftable: bool
     quantity: Optional[int] = None
     quality: Optional[EntityV2] = None
     paint: Optional[EntityV2] = None
     particle: Optional[EntityV2] = None
     elevatedQuality: Optional[EntityV2] = None
+
+    tradable: bool
+    craftable: bool
+
     killstreakTier: Optional[int] = None
     sheen: Optional[EntityV2] = None
     killstreaker: Optional[EntityV2] = None
+
     recipe: Optional[Recipe] = None
+
     festivized: Optional[bool] = None
     australium: Optional[bool] = None
+
     spells: Optional[List[Spell]] = None
 
-@dataclass
-class ListingCurrencies:
+class ListingCurrencies(BaseModel):
     metal: Optional[float] = None
     keys: Optional[float] = None
 
-@dataclass
-class ListingResolvable:
-    offers: int
-    buyout: int
-    currencies: ListingCurrencies
+class ListingResolvable(BaseModel):
     id: Optional[int] = None
     item: Optional[ItemV2] = None
+    offers: int
+    buyout: int
     details: Optional[str] = None
+    currencies: ListingCurrencies

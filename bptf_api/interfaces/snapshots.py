@@ -1,31 +1,27 @@
-from dataclasses import dataclass
 from typing import Optional, List, Union
+from pydantic import BaseModel
 
-@dataclass
-class Attribute:
+class Attribute(BaseModel):
     defindex: int
     value: Optional[Union[str, float, int, None]] = None
     float_value: Optional[float] = None
 
-@dataclass
-class Item:
-    defindex: int
-    quality: int
+class Item(BaseModel):
     id: Optional[int] = None
     original_id: Optional[int] = None
+    defindex: int
+    quality: int
     quantity: Optional[Union[int, str]] = None
     attributes: Optional[List[Attribute]] = None
     marketplace_price: Optional[float] = None
     marketplace_sku: Optional[str] = None
 
-@dataclass
-class SnapshotCurrencies:
+class SnapshotCurrencies(BaseModel):
     usd: Optional[float] = None
     keys: Optional[float] = None
     metal: Optional[float] = None
 
-@dataclass
-class SnapshotListing:
+class SnapshotListing(BaseModel):
     steamid: str
     offers: int
     buyout: int
@@ -37,8 +33,7 @@ class SnapshotListing:
     currencies: SnapshotCurrencies
     bump: int
 
-@dataclass
-class SnapshotResponse:
+class SnapshotResponse(BaseModel):
     listings: List[SnapshotListing]
     appid: Optional[int] = None
     sku: Optional[str] = None

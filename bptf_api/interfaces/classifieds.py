@@ -1,13 +1,11 @@
-from dataclasses import dataclass
 from typing import Optional
+from pydantic import BaseModel
 
-@dataclass
-class ListingCurrencies:
+class ListingCurrencies(BaseModel):
     metal: Optional[float] = None
     keys: Optional[float] = None
 
-@dataclass
-class ListingPatchRequest:
+class ListingPatchRequest(BaseModel):
     currencies: ListingCurrencies
     details: Optional[str] = None
     quantity: Optional[int] = None
