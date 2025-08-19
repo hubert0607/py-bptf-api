@@ -1,16 +1,19 @@
 from typing import Optional, List, Union, Dict, Any
-from pydantic import BaseModel
+from dataclasses import dataclass
 
-class Origin(BaseModel):
+@dataclass
+class Origin:
     id: int
     name: str
 
-class Quality(BaseModel):
+@dataclass
+class Quality:
     id: int
     name: str
     color: str
 
-class Spell(BaseModel):
+@dataclass
+class Spell:
     id: str
     spellId: str
     name: str
@@ -18,65 +21,78 @@ class Spell(BaseModel):
     defindex: Optional[int] = None
     color: Optional[str] = None
 
-class TextureRarity(BaseModel):
+@dataclass
+class TextureRarity:
     id: int
     name: str
     color: str
 
-class Texture(BaseModel):
+@dataclass
+class Texture:
     id: int
     itemDefindex: int
     rarity: TextureRarity
     name: str
 
-class WearTier(BaseModel):
+@dataclass
+class WearTier:
     id: int
     name: str
     short: str
 
-class KillEaterScoreKillEater(BaseModel):
+@dataclass
+class KillEaterScoreKillEater:
     name: str
 
-class KillEaterScore(BaseModel):
+@dataclass
+class KillEaterScore:
     score: int
     killEater: KillEaterScoreKillEater
 
-class Particle(BaseModel):
+@dataclass
+class Particle:
     id: int
     name: str
     shortName: str
     imageUrl: str
     type: str
 
-class Sheen(BaseModel):
+@dataclass
+class Sheen:
     id: int
     name: str
 
-class Killstreaker(BaseModel):
+@dataclass
+class Killstreaker:
     id: int
     name: str
 
-class Paint(BaseModel):
+@dataclass
+class Paint:
     id: int
     name: str
     color: str
 
-class StrangePartKillEater(BaseModel):
+@dataclass
+class StrangePartKillEater:
     id: int
     name: str
     item: 'Item'
 
-class StrangePart(BaseModel):
+@dataclass
+class StrangePart:
     score: int
     killEater: StrangePartKillEater
 
-class Recipe(BaseModel):
+@dataclass
+class Recipe:
     estimatedCraftingCost: List[Any]
     inputItems: List[Any]
-    outputItem: Optional[Any] = None
     targetItem: 'TargetItem'
+    outputItem: Optional[Any] = None
 
-class TargetItemSource(BaseModel):
+@dataclass
+class TargetItemSource:
     _id: str
     name: str
     defindex: int
@@ -101,12 +117,14 @@ class TargetItemSource(BaseModel):
     appid: int
     _keywords: List[str]
 
-class TargetItem(BaseModel):
+@dataclass
+class TargetItem:
     itemName: str
     imageUrl: str
     _source: TargetItemSource
 
-class ItemPriceEntry(BaseModel):
+@dataclass
+class ItemPriceEntry:
     raw: int
     short: str
     long: str
@@ -117,12 +135,14 @@ class ItemPriceEntry(BaseModel):
     updatedAt: Optional[int] = None
     difference: Optional[float] = None
 
-class ItemPrice(BaseModel):
+@dataclass
+class ItemPrice:
     steam: Optional[ItemPriceEntry] = None
     suggested: Optional[ItemPriceEntry] = None
     community: Optional[ItemPriceEntry] = None
 
-class Item(BaseModel):
+@dataclass
+class Item:
     appid: int
     baseName: str
     defindex: int
@@ -130,19 +150,18 @@ class Item(BaseModel):
     imageUrl: str
     marketName: str
     name: str
-    origin: Optional[Origin] = None
-    originalId: str
     quality: Quality
     summary: str
     price: Union[ItemPrice, List[ItemPrice]]
-    class_: Optional[List[str]] = None
-    slot: Optional[str] = None
     tradable: bool
     craftable: bool
+    originalId: str
+    origin: Optional[Origin] = None
+    class_: Optional[List[str]] = None
+    slot: Optional[str] = None
     level: Optional[int] = None
     customDesc: Optional[str] = None
     tag: Optional[str] = None
-
     spells: Optional[List[Spell]] = None
     elevatedQuality: Optional[Quality] = None
     texture: Optional[Texture] = None
@@ -158,10 +177,8 @@ class Item(BaseModel):
     recipe: Optional[Recipe] = None
     priceindex: Optional[str] = None
 
-    class Config:
-        fields = {'class_': 'class'}
-
-class User(BaseModel):
+@dataclass
+class User:
     id: str
     name: str
     avatar: str
@@ -173,43 +190,44 @@ class User(BaseModel):
     acceptedSuggestions: int
     class_: str
     style: str
-    role: Optional[str] = None
     tradeOfferUrl: str
     isMarketplaceSeller: bool
-    flagImpersonated: Optional[str] = None
     bans: List[Any]
+    role: Optional[str] = None
+    flagImpersonated: Optional[str] = None
 
-    class Config:
-        fields = {'class_': 'class'}
-
-class PayloadValue(BaseModel):
+@dataclass
+class PayloadValue:
     raw: int
     short: str
     long: str
 
-class PayloadCurrencies(BaseModel):
+@dataclass
+class PayloadCurrencies:
     metal: Optional[float] = None
     keys: Optional[float] = None
 
-class Payload(BaseModel):
+@dataclass
+class Payload:
     id: str
     steamid: str
     appid: int
     currencies: PayloadCurrencies
     value: PayloadValue
-    details: Optional[str] = None
     listedAt: int
     bumpedAt: int
     intent: str
     count: int
     status: str
     source: str
-    tradeOffersPreferred: Optional[bool] = None
-    buyoutOnly: Optional[bool] = None
     item: Item
     user: User
+    details: Optional[str] = None
+    tradeOffersPreferred: Optional[bool] = None
+    buyoutOnly: Optional[bool] = None
 
-class EventMessage(BaseModel):
+@dataclass
+class EventMessage:
     id: str
     event: str
     payload: Payload
