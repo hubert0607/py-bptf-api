@@ -4,7 +4,7 @@ from ratelimit import limits, sleep_and_retry
 
 from .interfaces.batch import ListingResolvable, ListingCurrencies, ItemV2
 
-BATCH_OPERATION_LIMIT = 10          #per minute
+BATCH_OPERATION_LIMIT = 10         #per minute
 
 
 
